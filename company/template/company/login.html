@@ -1,0 +1,40 @@
+<!--extends layout page-->
+{% extends 'company/base.html' %}
+<!--varible title to show on base.html-->
+{% load static%} {% block title%}
+Login {% endblock title%} {%block content%}
+<h1>Login</h1>
+{% if message%}
+ <h3>{{message}}</h3>
+{%endif%}
+
+<form method="POST">
+  <!-- This is secure token for submiting form in Django -->
+  {%csrf_token%}
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      class="form-control"
+      id="username"
+      placeholder="Enter"
+      name="username"
+    />
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password"
+      placeholder="Enter"
+      name="password"
+    />
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">Submit</button>
+</form>
+<div class="d-flex justify-content-between">
+  <a href="{%url 'register-page'%}">สมัครสมาชิก</a>
+  <a href="{%url 'reset-page'%}">ลืมรหัสผ่าน</a>
+</div>
+{%endblock content%}

@@ -1,0 +1,24 @@
+{% extends 'company/base.html' %} {% block title%} Aboutus {% endblock title%}
+{%block content%}
+<h1>แสดงรายชื่อผู้ติดต่อสำหรับ ฝ่ายบัญชี</h1>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">ชื่อ</th>
+      <th scope="col">นามสกุล</th>
+      <th scope="col">LINE</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for x in contact%}
+    <tr>
+      <th scope="row">{{forloop.counter}}</th>
+      <td>{{x.title}}</td>
+      <td>{{x.description}}</td>
+      <td>{{x.cost}}</td>
+    </tr>
+    {% endfor%}
+  </tbody>
+</table>
+{%endblock content%}
