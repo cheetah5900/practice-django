@@ -120,14 +120,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# ตั้งค่า absolute path ของไฟล์ โดยใช้คำสั่งต่อไปนี้
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
-# Set Static file to base Dir at Project folder
+# ตั้งค่าที่เก็บไฟล์แบบ absolute เพื่อให้สามารถเข้าถึงไฟล์ได้
 STATICFILES_DIRS = [
     # Set absolute path for root file in project and go to folder static
     BASE_DIR / "static",
 ]
+
+# ตั้งค่า absolute path ของไฟล์ โดยใช้คำสั่งต่อไปนี้
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

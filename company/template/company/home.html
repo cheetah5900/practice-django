@@ -6,8 +6,6 @@
 <!--varible content to show on base.html-->
 {% block title%} Home {% endblock title%} {%block content%}
 <h1>Hello World</h1>
-<img src="{% static 'image/test.jpg' %}" alt="My Image" />
-<img src="{% static 'image/test2.jpg' %}" alt="My Image" />
 {%if user.profile.usertype == 'vip'%}
 <h1>คุณลูกค้า VIP</h1>
 {%endif%}
@@ -20,7 +18,19 @@
         <h4 class="my-0 fw-normal">{{x.title}}</h4>
       </div>
       <div class="card-body">
-        <img src="{{x.image}}" style="max-width: 100%;" alt="">
+        {%if x.image %}
+        <img
+          src="/media/{{x.image}}"
+          style="width: 300px; height: 300px"
+          alt=""
+        />
+        {%endif%} {% if x.image == NULL %}
+        <img
+          src="{% static 'image/iu2.jpg' %}"
+          style="width: 300px; height: 300px"
+          alt="My Image"
+        />
+        {%endif%}
         <h1 class="card-title pricing-card-title">
           {{x.price}}<small class="text-muted fw-light">/mo</small>
         </h1>

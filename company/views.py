@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 import uuid # uuid สำหรับ gen รหัส unique
 from django.core.files.storage import FileSystemStorage #ให้สามารถเก็บไฟล์ได้
+from django.views.generic import ListView,View #ให้ใช้ ListView ได้
+from django.http import JsonResponse
 
 
 def Home(request):
@@ -45,8 +47,7 @@ def Contact(request):
 
         token = 'Pq5nvPFOtfGd1SHQCmBMgJ1sXH3DLuqOxnXQuM3UkdM'
         m = Sendline(token)
-        m.sendtext('หัวข้อ: {} \nคำอธิบาย: {}\nราคา: {}'.format(
-            title, description, cost))
+        m.sendtext('หัวข้อ: {} \nคำอธิบาย: {}\nราคา: {}'.format(title, description, cost))
         # Can do like this
         # Contact(title=title,description=description,cost=cost)
     return render(request, 'company/contact.html', context)
@@ -206,22 +207,79 @@ def AddProduct(request):
        newProduct.price = float(price)
        newProduct.mobile = mobile
 
-       if 'image' in request.FILES: #มี key picture อยู่ใน request.FILES หรือไม่
-           file_image = request.FILES['image'] # ตัวนี้คือไฟล์จริงๆ
-           file_image_name = file_image.name.replace(' ','') # ดึง name ใน object รูปภาพออกมาพร้อมแทนที่ เว้นวรรค ด้วยค่าว่าง
-           fs = FileSystemStorage()   # สำหรับบันทึกข้อมูลลงเครื่อง
-           filename = fs.save(file_image_name,file_image) # คำสั่งบันทึกลงเครื่องโดยใส่ชื่อ และรูปภาพ
-           upload_file_url = fs.url(filename)
-           newProduct.image = upload_file_url[6:]
+       if 'image' in request.FILES: #มี key image อยู่ใน request.FILES หรือไม่
+           file_image = request.FILES['image'] # เอา object ของรูปภาพมาเก็บใส่ตัวแปร
+           # ดึง name ใน object รูปภาพออกมาพร้อมแทนที่ เว้นวรรค ด้วยค่าว่าง
+           file_image_name = file_image.name.replace(' ','')
+           fs = FileSystemStorage()   # สร้าง Instance สำหรับบันทึกข้อมูลลงเครื่อง
+           filename = fs.save(file_image_name,file_image) # คำสั่งบันทึกลงเครื่องโดยใส่ชื่อ และ object รูปภาพ
+           upload_file_url = fs.url(filename) #ดึง url ออกมาจาก file_name
+           newProduct.image = upload_file_url[6:] # ให้เก็บตั้งแต่ตัวที่ 6 เป็นต้นไป เพราะ 6 ตัวแรกเป็นคำว่า media/
 
-       if 'file' in request.FILES: #มี key picture อยู่ใน request.FILES หรือไม่
-           file_image = request.FILES['file'] # ตัวนี้คือไฟล์จริงๆ
-           file_image_name = file_image.name.replace(' ','') # ดึง name ใน object รูปภาพออกมาพร้อมแทนที่ เว้นวรรค ด้วยค่าว่าง
-           fs = FileSystemStorage()   # สำหรับบันทึกข้อมูลลงเครื่อง
-           filename = fs.save(file_image_name,file_image) # คำสั่งบันทึกลงเครื่องโดยใส่ชื่อ และรูปภาพ
-           upload_file_url = fs.url(filename) #ดึง url ออกมาจาก file_name 
+       if 'file' in request.FILES: 
+           file_image = request.FILES['file'] 
+           file_image_name = file_image.name.replace(' ','') 
+           fs = FileSystemStorage()   
+           filename = fs.save(file_image_name,file_image) 
+           upload_file_url = fs.url(filename)  
            newProduct.file = upload_file_url[6:]
        newProduct.save()
     #    render redirect ('home-page') 
     context['message'] = "เพิ่ม Product สำเร็จแล้ว"
     return render(request,'company/addproduct.html')
+
+# เขียนแบบ Class-Based
+# from django.views.generic import ListView,View #ให้ใช้ ListView ได้
+# from django.http import JsonResponse 
+class CrudView(ListView): #ต้องเอา ListView มาใส่ให้กลายเป็น Class-based
+    model = CrudUser #เราจะใช้ model ที่ชื่อว่า user
+    template_name = 'company/crud.html'
+    context_object_name = 'users' # แนบตัวแปร context เข้าไปโดยใช้ key ชื่อว่า 
+
+class CreateCrudUser(View):
+    def  get(self, request):
+        name1 = request.GET.get('name', None)
+        address1 = request.GET.get('address', None)
+        age1 = request.GET.get('age', None)
+
+        obj = CrudUser.objects.create(
+            name = name1,
+            address = address1,
+            age = age1
+        )
+
+        user = {'id':obj.id,'name':obj.name,'address':obj.address,'age':obj.age}
+
+        data = {
+            'user': user
+        }
+        return JsonResponse(data)
+
+class UpdateCrudUser(View):
+    def  get(self, request):
+        id1 = request.GET.get('id', None)
+        name1 = request.GET.get('name', None)
+        address1 = request.GET.get('address', None)
+        age1 = request.GET.get('age', None)
+
+        obj = CrudUser.objects.get(id=id1)
+        obj.name = name1
+        obj.address = address1
+        obj.age = age1
+        obj.save()
+
+        user = {'id':obj.id,'name':obj.name,'address':obj.address,'age':obj.age}
+
+        data = {
+            'user': user
+        }
+        return JsonResponse(data)
+
+class DeleteCrudUser(View):
+    def  get(self, request):
+        id1 = request.GET.get('id', None)
+        CrudUser.objects.get(id=id1).delete()
+        data = {
+            'deleted': True
+        }
+        return JsonResponse(data)
